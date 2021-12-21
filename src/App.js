@@ -19,7 +19,7 @@ const App = () => {
   const getIgUser = () => {
     setIgUser(null);
     setStatus({ ...status, isLoading: true });
-    fetch(`http://treechoweather.azurewebsites.net/api/ig?username=${username}`)
+    fetch(`https://treechoweather.azurewebsites.net/api/ig?username=${username}`)
       .then((response) => {
         if (response.ok) {
           return response.json();
@@ -44,7 +44,7 @@ const App = () => {
   }
 
   const loadMore = () => {
-    fetch(`http://treechoweather.azurewebsites.net/api/ig?username=${igUser.username}&next=${igUser.next}`)
+    fetch(`https://treechoweather.azurewebsites.net/api/ig?username=${igUser.username}&next=${igUser.next}`)
       .then((response) => {
         if (response.ok) {
           return response.json();
@@ -130,7 +130,7 @@ const IgUserPhotos = (props) => {
     <div className="row row-cols-3 g-1 g-md-3 g-lg-4">
       {
         photos.map((photo, index) => {
-          var image = `http://treechoweather.azurewebsites.net/api/media?url=${encodeURIComponent(photo)}`;
+          var image = `https://treechoweather.azurewebsites.net/api/media?url=${encodeURIComponent(photo)}`;
           return (
             <div key={index} className='col'>
               <div className="rounded ratio ratio-1x1">
