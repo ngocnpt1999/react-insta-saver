@@ -1,5 +1,6 @@
 import * as bootstrap from 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import '@fortawesome/fontawesome-free/css/all.css';
 import './App.css';
 import { useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -11,6 +12,26 @@ const App = () => {
     isLoading: false,
     error: ""
   });
+  const [photoBag, setPhotoBag] = useState({
+    enable: false,
+    photos: []
+  });
+
+  const enablePhotoBag = () => {
+    setPhotoBag({ ...photoBag, enable: !photoBag.enable });
+  }
+
+  const updatePhotoInBag = (url) => {
+    var index = photoBag.photos.indexOf(url);
+    var tempPhotos = photoBag.photos.slice();
+    if (index > -1) {
+      tempPhotos.splice(index, 1);
+    }
+    else {
+      tempPhotos.push(url);
+    }
+    setPhotoBag({ ...photoBag, photos: tempPhotos });
+  }
 
   const handleChange = (e) => {
     setUsername(e.target.value);
@@ -95,7 +116,7 @@ const App = () => {
               }
               style={{ overflow: "unset" }}
             >
-              <IgUserPhotos photos={igUser.photos}></IgUserPhotos>
+              <IgUserPhotos photos={igUser.photos} photoBag={photoBag} onCheck={updatePhotoInBag}></IgUserPhotos>
             </InfiniteScroll>
         }
         {
@@ -105,6 +126,17 @@ const App = () => {
         }
       </div>
       <br></br>
+      <div className='position-fixed bottom-0 end-0'>
+        {
+          !photoBag.enable ?
+            <button onClick={enablePhotoBag} className='btn btn-primary m-3'>
+              <i className="fas fa-tasks fa-2x"></i>
+            </button> :
+            <button onClick={enablePhotoBag} className='btn btn-danger m-3'>
+              <i className="fas fa-times-circle fa-2x"></i>
+            </button>
+        }
+      </div>
       <div className='modal fade bg-dark bg-opacity-75' id='myModal'>
         <div className='modal-dialog modal-fullscreen modal-dialog-centered'>
           <div className='modal-body p-0'>
@@ -117,24 +149,62 @@ const App = () => {
 }
 
 const IgUserPhotos = (props) => {
-  const { photos } = props;
+  const { photos, photoBag, onCheck } = props;
 
-  const imgClick = (e) => {
+  const showImg = (e) => {
     var url = e.target.src;
     document.getElementById("imgModal").src = url;
     var modal = new bootstrap.Modal(document.getElementById("myModal"), { backdrop: true });
     modal.show();
   }
 
+  const downloadImg = (e) => {
+    var url = e.target.value;
+    var a = document.createElement("a");
+    a.href = url;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  const handleCheck = (e) => {
+    var checkbox = e.target.querySelector('input');
+    var url = checkbox.value;
+    onCheck(url);
+  }
+
   return (
     <div className="row row-cols-3 g-1 g-md-3 g-lg-4">
       {
         photos.map((photo, index) => {
-          var image = `https://treechoweather.azurewebsites.net/api/media?url=${encodeURIComponent(photo)}`;
+          var imgUrl = `https://treechoweather.azurewebsites.net/api/media?fbUrl=${encodeURIComponent(photo)}`;
           return (
             <div key={index} className='col'>
-              <div className="rounded ratio ratio-1x1">
-                <img src={image} alt='' style={{ objectFit: "cover" }} onClick={imgClick} loading={index < 24 ? "eager" : "lazy"}></img>
+              <div className="ratio ratio-1x1">
+                <img src={imgUrl}
+                  alt='' style={{ objectFit: "cover" }}
+                  onClick={showImg}
+                  loading={index < 24 ? "eager" : "lazy"}
+                ></img>
+                {
+                  photoBag.enable ?
+                    <div className='position-absolute' onClick={handleCheck}>
+                      <div className="form-check d-flex justify-content-end">
+                        <input className="form-check-input border-primary shadow mt-2 me-2"
+                          type="checkbox"
+                          value={photo}
+                          checked={photoBag.photos.includes(photo)}
+                          style={{ minHeight: "1.5rem", minWidth: "1.5rem" }}
+                          disabled></input>
+                      </div>
+                    </div> :
+                    <div className='position-absolute top-85 start-50 translate-middle-x h-15 w-75'>
+                      <button value={imgUrl + "&download=true"}
+                        className='btn shadow h4 fw-bold h-100 w-100'
+                        onClick={downloadImg}
+                      >DOWNLOAD</button>
+                    </div>
+                }
               </div>
             </div>
           );

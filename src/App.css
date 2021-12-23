@@ -36,3 +36,36 @@
     transform: rotate(360deg);
   }
 }
+
+.top-75 {
+  top: 75% !important;
+}
+
+.top-85 {
+  top: 85% !important;
+}
+
+.h-15 {
+  height: 15% !important;
+}
+
+.w-60 {
+  width: 60% !important;
+}
+
+button.btn.h4 {
+  background-color: #ffffff;
+  color: #ed5066;
+  border-radius: 10px 10px 0 0;
+  opacity: 0;
+}
+
+.ratio.ratio-1x1:hover button.btn.h4 {
+  opacity: 1;
+  transition: all 0.4s;
+}
+
+.ratio.ratio-1x1:hover button.btn.h4:hover {
+  background-color: #ed5066;
+  color: #ffffff;
+}
