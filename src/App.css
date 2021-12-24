@@ -69,3 +69,15 @@ button.btn.h4 {
   background-color: #ed5066;
   color: #ffffff;
 }
+
+@media (min-width: 576px) {
+  button.btn.h4 {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) {
+  button.btn.h4 {
+    display: inline-block;
+  }
+}

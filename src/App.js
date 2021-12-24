@@ -5,6 +5,8 @@ import './App.css';
 import { useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
+let apiDomain = "https://treechoapi.azurewebsites.net/api";
+
 const App = () => {
   const [username, setUsername] = useState("");
   const [igUser, setIgUser] = useState(null);
@@ -18,7 +20,15 @@ const App = () => {
   });
 
   const enablePhotoBag = () => {
-    setPhotoBag({ ...photoBag, enable: !photoBag.enable });
+    if (photoBag.enable) {
+      setPhotoBag({
+        enable: false,
+        photos: []
+      });
+    }
+    else {
+      setPhotoBag({ ...photoBag, enable: true });
+    }
   }
 
   const updatePhotoInBag = (url) => {
@@ -40,7 +50,7 @@ const App = () => {
   const getIgUser = () => {
     setIgUser(null);
     setStatus({ ...status, isLoading: true });
-    fetch(`https://treechoweather.azurewebsites.net/api/ig?username=${username}`)
+    fetch(`${apiDomain}/ig?username=${username}`)
       .then((response) => {
         if (response.ok) {
           return response.json();
@@ -54,18 +64,20 @@ const App = () => {
           isLoading: false,
           error: ""
         });
-        setIgUser(user);
+        if (user !== null || user !== undefined) {
+          setIgUser(user);
+        }
       })
       .catch((err) => {
         setStatus({
           isLoading: false,
-          error: err
+          error: err.message
         });
       });
   }
 
   const loadMore = () => {
-    fetch(`https://treechoweather.azurewebsites.net/api/ig?username=${igUser.username}&next=${igUser.next}`)
+    fetch(`${apiDomain}/ig?username=${igUser.username}&next=${igUser.next}`)
       .then((response) => {
         if (response.ok) {
           return response.json();
@@ -75,11 +87,21 @@ const App = () => {
         }
       })
       .then((user) => {
-        user.photos = igUser.photos.concat(user.photos);
-        setIgUser(user);
-        setStatus({ ...status, error: "" });
+        if (user !== null || user !== undefined) {
+          user.photos = igUser.photos.concat(user.photos);
+          setIgUser(user);
+          setStatus({
+            isLoading: false,
+            error: ""
+          });
+        }
       })
-      .catch((err) => setStatus({ ...status, error: err }));
+      .catch((err) => {
+        setStatus({
+          isLoading: false,
+          error: err.message
+        });
+      });
   }
 
   return (
@@ -128,11 +150,17 @@ const App = () => {
       <br></br>
       <div className='position-fixed bottom-0 end-0'>
         {
+          photoBag.photos.length > 0 ?
+            <button className='btn btn-primary me-1 mb-3'>
+              <i className="fas fa-download fa-2x"></i>
+            </button> : null
+        }
+        {
           !photoBag.enable ?
-            <button onClick={enablePhotoBag} className='btn btn-primary m-3'>
+            <button onClick={enablePhotoBag} className='btn btn-primary me-3 mb-3'>
               <i className="fas fa-tasks fa-2x"></i>
             </button> :
-            <button onClick={enablePhotoBag} className='btn btn-danger m-3'>
+            <button onClick={enablePhotoBag} className='btn btn-danger me-3 mb-3'>
               <i className="fas fa-times-circle fa-2x"></i>
             </button>
         }
@@ -168,16 +196,24 @@ const IgUserPhotos = (props) => {
   }
 
   const handleCheck = (e) => {
-    var checkbox = e.target.querySelector('input');
-    var url = checkbox.value;
-    onCheck(url);
+    var element = e.currentTarget;
+    var url;
+    if (element.type === "checkbox") {
+      url = element.value;
+      onCheck(url);
+    }
+    else {
+      var checkbox = e.target.querySelector('input');
+      url = checkbox.value;
+      onCheck(url);
+    }
   }
 
   return (
     <div className="row row-cols-3 g-1 g-md-3 g-lg-4">
       {
         photos.map((photo, index) => {
-          var imgUrl = `https://treechoweather.azurewebsites.net/api/media?fbUrl=${encodeURIComponent(photo)}`;
+          var imgUrl = `${apiDomain}/media?fbUrl=${encodeURIComponent(photo)}`;
           return (
             <div key={index} className='col'>
               <div className="ratio ratio-1x1">
@@ -194,8 +230,9 @@ const IgUserPhotos = (props) => {
                           type="checkbox"
                           value={photo}
                           checked={photoBag.photos.includes(photo)}
+                          onChange={handleCheck}
                           style={{ minHeight: "1.5rem", minWidth: "1.5rem" }}
-                          disabled></input>
+                        ></input>
                       </div>
                     </div> :
                     <div className='position-absolute top-85 start-50 translate-middle-x h-15 w-75'>
