@@ -2,8 +2,9 @@ import * as bootstrap from 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 import './App.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import axios from 'axios';
 
 let apiDomain = "https://treechoapi.azurewebsites.net/api";
 
@@ -18,6 +19,14 @@ const App = () => {
     enable: false,
     photos: []
   });
+
+  useEffect(() => {
+    if (status.isLoading) {
+      showModal(false);
+    } else {
+      hideModal();
+    }
+  }, [status.isLoading]);
 
   const enablePhotoBag = () => {
     if (photoBag.enable) {
@@ -104,21 +113,49 @@ const App = () => {
       });
   }
 
+  const downloadPhotoBag = () => {
+    setStatus({ ...status, isLoading: true });
+    axios({
+      method: "POST",
+      url: `${apiDomain}/media/compressed`,
+      data: {
+        id: igUser.id,
+        username: igUser.username,
+        photos: photoBag.photos
+      },
+      responseType: 'blob'
+    }).then((response) => {
+      if (response.status === 200) {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `${igUser.id}_${Math.floor(Math.random() * 1000000000)}.zip`); //or any other extension
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        throw new Error(response.statusText);
+      }
+    }).then(() => {
+      setPhotoBag({
+        enable: false,
+        photos: []
+      })
+    })
+      .catch((err) => setStatus({ ...status, error: err.message }))
+      .finally(() => setStatus({ ...status, isLoading: false }));
+  }
+
   return (
     <div className="container-fluid px-0 px-md-3">
-      <div className="w-50 mx-auto my-4">
+      <div className="mx-auto my-4" style={{ maxWidth: "568px" }}>
         <div className="input-group mb-3">
           <input type="text" className="form-control" value={username} placeholder="@username" onChange={handleChange}></input>
           <button className="btn btn-outline-secondary" type="button" onClick={getIgUser}>Submit</button>
         </div>
         {
-          status.isLoading ?
-            <div className="d-flex">
-              <div className="spinner-grow text-danger" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-              <strong className="justify-content-center align-self-center ms-1">Loading...</strong>
-            </div>
+          status.error !== "" ?
+            <h3 className="text-danger">{status.error}</h3>
             : null
         }
       </div>
@@ -141,17 +178,12 @@ const App = () => {
               <IgUserPhotos photos={igUser.photos} photoBag={photoBag} onCheck={updatePhotoInBag}></IgUserPhotos>
             </InfiniteScroll>
         }
-        {
-          status.error !== "" ?
-            <h3 className="text-danger">{status.error}</h3>
-            : null
-        }
       </div>
       <br></br>
       <div className='position-fixed bottom-0 end-0'>
         {
           photoBag.photos.length > 0 ?
-            <button className='btn btn-primary me-1 mb-3'>
+            <button onClick={downloadPhotoBag} className='btn btn-primary me-1 mb-3'>
               <i className="fas fa-download fa-2x"></i>
             </button> : null
         }
@@ -168,12 +200,33 @@ const App = () => {
       <div className='modal fade bg-dark bg-opacity-75' id='myModal'>
         <div className='modal-dialog modal-fullscreen modal-dialog-centered'>
           <div className='modal-body p-0'>
-            <img alt='' src='' id='imgModal' className='img-fluid mx-auto d-block' style={{ maxHeight: "90vh" }}></img>
+            {
+              status.isLoading ?
+                <div className="d-flex justify-content-center">
+                  <div className="spinner-grow text-danger justify-content-center" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                  </div>
+                  <strong className="justify-content-center align-self-center text-light ms-1">Loading...</strong>
+                </div> :
+                <img alt='' src='' id='imgModal' className='img-fluid d-block mx-auto' style={{ maxHeight: "95vh" }}></img>
+            }
           </div>
         </div>
       </div>
     </div>
   );
+}
+
+const showModal = (isBackdrop = true) => {
+  var myModalEl = document.querySelector('#myModal');
+  var modal = bootstrap.Modal.getOrCreateInstance(myModalEl, { backdrop: isBackdrop });
+  modal.show();
+}
+
+const hideModal = () => {
+  var myModalEl = document.querySelector('#myModal');
+  var modal = bootstrap.Modal.getOrCreateInstance(myModalEl);
+  modal.hide();
 }
 
 const IgUserPhotos = (props) => {
@@ -182,8 +235,7 @@ const IgUserPhotos = (props) => {
   const showImg = (e) => {
     var url = e.target.src;
     document.getElementById("imgModal").src = url;
-    var modal = new bootstrap.Modal(document.getElementById("myModal"), { backdrop: true });
-    modal.show();
+    showModal();
   }
 
   const downloadImg = (e) => {
@@ -203,7 +255,7 @@ const IgUserPhotos = (props) => {
       onCheck(url);
     }
     else {
-      var checkbox = e.target.querySelector('input');
+      var checkbox = element.querySelector('input');
       url = checkbox.value;
       onCheck(url);
     }
