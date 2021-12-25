@@ -148,7 +148,7 @@ const App = () => {
 
   return (
     <div className="container-fluid px-0 px-md-3">
-      <div className="mx-auto my-4" style={{ maxWidth: "568px" }}>
+      <div className="mx-auto my-4 px-2" style={{ maxWidth: "568px" }}>
         <div className="input-group mb-3">
           <input type="text" className="form-control" value={username} placeholder="@username" onChange={handleChange}></input>
           <button className="btn btn-outline-secondary" type="button" onClick={getIgUser}>Submit</button>
@@ -180,23 +180,26 @@ const App = () => {
         }
       </div>
       <br></br>
-      <div className='position-fixed bottom-0 end-0'>
-        {
-          photoBag.photos.length > 0 ?
-            <button onClick={downloadPhotoBag} className='btn btn-primary me-1 mb-3'>
-              <i className="fas fa-download fa-2x"></i>
-            </button> : null
-        }
-        {
-          !photoBag.enable ?
-            <button onClick={enablePhotoBag} className='btn btn-primary me-3 mb-3'>
-              <i className="fas fa-tasks fa-2x"></i>
-            </button> :
-            <button onClick={enablePhotoBag} className='btn btn-danger me-3 mb-3'>
-              <i className="fas fa-times-circle fa-2x"></i>
-            </button>
-        }
-      </div>
+      {
+        igUser !== null ?
+          <div className='position-fixed bottom-0 end-0 p-3'>
+            {
+              photoBag.photos.length > 0 ?
+                <button onClick={downloadPhotoBag} className='btn btn-success rounded-circle p-0 me-2'>
+                  <i className="fas fa-save fa-2x"></i>
+                </button> : null
+            }
+            {
+              !photoBag.enable ?
+                <button onClick={enablePhotoBag} className='btn btn-primary rounded-circle p-0'>
+                  <i className="fas fa-check fa-2x"></i>
+                </button> :
+                <button onClick={enablePhotoBag} className='btn btn-danger rounded-circle p-0'>
+                  <i className="fas fa-times fa-2x"></i>
+                </button>
+            }
+          </div> : null
+      }
       <div className='modal fade bg-dark bg-opacity-75' id='myModal'>
         <div className='modal-dialog modal-fullscreen modal-dialog-centered'>
           <div className='modal-body p-0'>
@@ -273,6 +276,7 @@ const IgUserPhotos = (props) => {
                   alt='' style={{ objectFit: "cover" }}
                   onClick={showImg}
                   loading={index < 24 ? "eager" : "lazy"}
+                  className={photoBag.photos.includes(photo) ? "border border-2 border-primary" : ""}
                 ></img>
                 {
                   photoBag.enable ?
