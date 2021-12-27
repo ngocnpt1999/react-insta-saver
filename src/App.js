@@ -22,9 +22,9 @@ const App = () => {
 
   useEffect(() => {
     if (status.isLoading) {
-      showModal(false);
+      showModal("loadingModal");
     } else {
-      hideModal();
+      hideModal("loadingModal");
     }
   }, [status.isLoading]);
 
@@ -57,6 +57,10 @@ const App = () => {
   }
 
   const getIgUser = () => {
+    setPhotoBag({
+      enable: false,
+      photos: []
+    });
     setIgUser(null);
     setStatus({ ...status, isLoading: true });
     fetch(`${apiDomain}/ig?username=${username}`)
@@ -200,19 +204,22 @@ const App = () => {
             }
           </div> : null
       }
-      <div className='modal fade bg-dark bg-opacity-75' id='myModal'>
+      <div className='modal fade bg-dark bg-opacity-75' id='photoModal'>
         <div className='modal-dialog modal-fullscreen modal-dialog-centered'>
           <div className='modal-body p-0'>
-            {
-              status.isLoading ?
-                <div className="d-flex justify-content-center">
-                  <div className="spinner-grow text-danger justify-content-center" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </div>
-                  <strong className="justify-content-center align-self-center text-light ms-1">Loading...</strong>
-                </div> :
-                <img alt='' src='' id='imgModal' className='img-fluid d-block mx-auto' style={{ maxHeight: "95vh" }}></img>
-            }
+            <img alt='' src='' id='imgModal' className='img-fluid d-block mx-auto' style={{ maxHeight: "95vh" }}></img>
+          </div>
+        </div>
+      </div>
+      <div className='modal fade bg-dark bg-opacity-75' id='loadingModal' data-bs-backdrop="static" data-bs-keyboard="false">
+        <div className='modal-dialog modal-fullscreen modal-dialog-centered'>
+          <div className='modal-body p-0'>
+            <div className="d-flex justify-content-center">
+              <div className="spinner-grow text-danger justify-content-center" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+              <strong className="justify-content-center align-self-center text-light ms-1">Loading...</strong>
+            </div>
           </div>
         </div>
       </div>
@@ -220,14 +227,14 @@ const App = () => {
   );
 }
 
-const showModal = (isBackdrop = true) => {
-  var myModalEl = document.querySelector('#myModal');
-  var modal = bootstrap.Modal.getOrCreateInstance(myModalEl, { backdrop: isBackdrop });
+const showModal = (id) => {
+  var myModalEl = document.getElementById(id);
+  var modal = bootstrap.Modal.getOrCreateInstance(myModalEl);
   modal.show();
 }
 
-const hideModal = () => {
-  var myModalEl = document.querySelector('#myModal');
+const hideModal = (id) => {
+  var myModalEl = document.getElementById(id);
   var modal = bootstrap.Modal.getOrCreateInstance(myModalEl);
   modal.hide();
 }
@@ -238,7 +245,7 @@ const IgUserPhotos = (props) => {
   const showImg = (e) => {
     var url = e.target.src;
     document.getElementById("imgModal").src = url;
-    showModal();
+    showModal("photoModal");
   }
 
   const downloadImg = (e) => {
@@ -282,12 +289,12 @@ const IgUserPhotos = (props) => {
                   photoBag.enable ?
                     <div className='position-absolute' onClick={handleCheck}>
                       <div className="form-check d-flex justify-content-end">
-                        <input className="form-check-input border-primary shadow mt-2 me-2"
+                        <input className="form-check-input rounded-circle border-primary shadow mt-2 me-2"
                           type="checkbox"
                           value={photo}
                           checked={photoBag.photos.includes(photo)}
                           onChange={handleCheck}
-                          style={{ minHeight: "1.5rem", minWidth: "1.5rem" }}
+                          style={{ width: "1.25rem", height: "1.25rem" }}
                         ></input>
                       </div>
                     </div> :
