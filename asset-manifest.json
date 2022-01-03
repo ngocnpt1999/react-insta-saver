@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/react-insta-saver/static/css/main.c6f29a10.css",
-    "main.js": "/react-insta-saver/static/js/main.854c0b98.js",
+    "main.js": "/react-insta-saver/static/js/main.2389e629.js",
     "static/js/787.0d26c77d.chunk.js": "/react-insta-saver/static/js/787.0d26c77d.chunk.js",
     "static/media/fa-solid-900.svg": "/react-insta-saver/static/media/fa-solid-900.7a8b4f130182d19a2d7c.svg",
     "static/media/fa-brands-400.svg": "/react-insta-saver/static/media/fa-brands-400.2f517e09eb2ca6650ff5.svg",
@@ -20,11 +20,11 @@
     "static/media/fa-regular-400.woff2": "/react-insta-saver/static/media/fa-regular-400.7a3337626410ca2f4071.woff2",
     "index.html": "/react-insta-saver/index.html",
     "main.c6f29a10.css.map": "/react-insta-saver/static/css/main.c6f29a10.css.map",
-    "main.854c0b98.js.map": "/react-insta-saver/static/js/main.854c0b98.js.map",
+    "main.2389e629.js.map": "/react-insta-saver/static/js/main.2389e629.js.map",
     "787.0d26c77d.chunk.js.map": "/react-insta-saver/static/js/787.0d26c77d.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.c6f29a10.css",
-    "static/js/main.854c0b98.js"
+    "static/js/main.2389e629.js"
   ]
 }
