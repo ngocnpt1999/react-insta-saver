@@ -155,7 +155,7 @@ const App = () => {
       <div className="mx-auto my-4 px-2" style={{ maxWidth: "568px" }}>
         <div className="input-group mb-3">
           <input type="text" className="form-control" value={username} placeholder="@username" onChange={handleChange}></input>
-          <button className="btn btn-outline-secondary" type="button" onClick={getIgUser}>Submit</button>
+          <button className="btn btn-danger" type="button" onClick={getIgUser}>Confirm</button>
         </div>
         {
           status.error !== "" ?
